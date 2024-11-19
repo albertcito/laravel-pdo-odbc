@@ -25,6 +25,7 @@ class Connector extends ODBCConnector implements OdbcDriver
     {
         $connection = null;
         $usingSnowflakeDriver = $config['driver'] === 'snowflake_native';
+        $noUseCustomStatementClass = $config['no_use_custom_statement_class'] ?? false;
 
         // the PDO Snowflake driver was installed and the driver was snowflake, start using snowflake driver.
         if ($usingSnowflakeDriver) {
@@ -38,7 +39,7 @@ class Connector extends ODBCConnector implements OdbcDriver
 
         $connection = parent::connect($config);
 
-        if ($usingSnowflakeDriver === false) {
+        if ($usingSnowflakeDriver === false && $noUseCustomStatementClass === false) {
             // custom Statement class to resolve Streaming value and parameters.
             if (PHP_VERSION_ID > 80000) {
                 $connection->setAttribute(PDO::ATTR_STATEMENT_CLASS, [\LaravelPdoOdbc\Flavours\Snowflake\PDO\Statement80::class, [$connection]]);
